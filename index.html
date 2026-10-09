@@ -37,7 +37,8 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 .waiting.taken .sprite { transform: translateY(-12px) scale(1.12); opacity: 0; }
 .waiting.taken .disc { opacity: 0; }
 .spark { position: absolute; bottom: 26px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #e8bb67; pointer-events: none; animation: spark 0.6s ease-out forwards; }
-.joy .person.walker { animation: hop 0.5s ease-out 2; }
+#procession { position: absolute; inset: 0; overflow: visible; }
+#procession .person { margin-left: 0; left: 0; top: 0; bottom: auto; transform-origin: 50% 100%; }
 #status { min-height: 1.6em; margin: 0; font-size: clamp(16px, 2.4vh, 22px); font-weight: 600; letter-spacing: 0.02em; color: #123b43; text-shadow: 0 1px 0 rgba(247, 239, 217, 0.8); }
 #status .pct { color: #8f6a24; font-variant-numeric: tabular-nums; }
 #notice { display: none; max-width: min(88vw, 460px); padding: 18px 20px; border-radius: 16px; background: #173e45; border: 2px solid #e8bb67; color: #f7efd9; line-height: 1.45; text-align: center; font-size: 16px; }
@@ -47,10 +48,8 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #loader.failed #notice { display: block; }
 @keyframes breathe { 0%, 100% { opacity: 0.75; transform: translate(-50%, -52%) scale(0.96); } 50% { opacity: 1; transform: translate(-50%, -52%) scale(1.04); } }
 @keyframes spark { from { opacity: 1; transform: translate(0, 0); } to { opacity: 0; transform: translate(var(--dx), -26px); } }
-@keyframes hop { 0%, 100% { translate: 0 0; } 40% { translate: 0 -9px; } }
 @media (prefers-reduced-motion: reduce) {
   #glow { animation: none; }
-  .joy .person.walker { animation: none; }
   .spark { display: none; }
   #loader, .waiting { transition-duration: 0.01s; }
 }
@@ -68,7 +67,7 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
   <img id="title" src="loading/title.webp" alt="Fisher of Men" width="520" height="177">
   <div id="scene" aria-hidden="true">
     <div id="path"><div id="walkers"></div></div>
-    <div id="goal"><div id="glow"></div><div id="gate"></div><div id="jesus"></div></div>
+    <div id="goal"><div id="glow"></div><div id="gate"></div><div id="procession"></div><div id="jesus"></div></div>
   </div>
   <p id="status"></p>
   <div id="notice"></div>
@@ -223,14 +222,51 @@ const engine = new Engine(GODOT_CONFIG);
     if (ready && shown > 0.995 && !finishing) {
       finishing = true;
       setStatus(STRINGS.welcome, null);
-      walkers.classList.add('joy');
-      setTimeout(() => {
+      frame(leader.el, 0, 0);
+      procession().then(() => {
         loader.classList.add('leaving');
         setTimeout(() => loader.remove(), 750);
-      }, calm ? 300 : 1000);
+      });
       return;
     }
     requestAnimationFrame(tick);
+  }
+
+  // The finale, as on a delivery in the game: the fisher waits beside Jesus while
+  // everyone he gathered walks past Jesus and into the gate, shrinking and fading.
+  function procession() {
+    const goal = document.getElementById('goal');
+    const layer = document.getElementById('procession');
+    const box = goal.getBoundingClientRect();
+    const zoom = box.width / goal.offsetWidth || 1;
+    if (calm || line.length === 0) {
+      line.forEach((f) => { f.el.style.transition = 'opacity 0.3s'; f.el.style.opacity = '0'; });
+      return new Promise((done) => setTimeout(done, 350));
+    }
+    const centre = goal.offsetWidth / 2;
+    const door = { x: centre, y: goal.offsetHeight - 58 };
+    const runs = line.map((f, i) => {
+      const r = f.el.getBoundingClientRect();
+      const x = (r.left + r.width / 2 - box.left) / zoom;
+      const feet = (r.bottom - box.top) / zoom - 4;
+      const el = document.createElement('div');
+      el.className = 'person';
+      layer.appendChild(el);
+      f.el.style.visibility = 'hidden';
+      const place = (px, py, scale) => 'translate(' + (px - CELL / 2) + 'px, ' + (py - CELL) + 'px) scale(' + scale + ')';
+      const steps = [
+        { transform: place(x, feet, 1), opacity: 1 },
+        { transform: place(centre - 30, feet, 1), opacity: 1, offset: 0.45 },
+        { transform: place(centre - 12, feet - 30, 0.72), opacity: 1, offset: 0.72 },
+        { transform: place(door.x, door.y, 0.38), opacity: 0 },
+      ];
+      let walk = 0;
+      const clock = setInterval(() => { walk = (walk + 1) % 4; frame(el, f.row, walk); }, 110);
+      frame(el, f.row, 0);
+      const move = el.animate(steps, { duration: 1300, delay: i * 170, easing: 'ease-in-out', fill: 'both' });
+      return move.finished.then(() => { clearInterval(clock); el.remove(); });
+    });
+    return Promise.all(runs);
   }
 
   function fail(text) {
