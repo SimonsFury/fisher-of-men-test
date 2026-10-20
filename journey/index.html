@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-<script>window.FOM_BUILD="20 Oct 14:54 44f5e1";window.FOM_JOURNEY_TEST=true;(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
+<script>window.FOM_BUILD="20 Oct 15:49 fc5d1a";window.FOM_JOURNEY_TEST=true;(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
 <meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
@@ -52,13 +52,8 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #gate { position: absolute; left: 50%; bottom: 0; width: 120px; height: 108px; transform: translateX(-50%); background: url("loading/gate.webp") center bottom / contain no-repeat; }
 #jesus { position: absolute; left: 50%; bottom: -2px; width: 44px; height: 68px; transform: translateX(-50%); background: url("loading/jesus.webp") center bottom / contain no-repeat; }
 #walkers { position: absolute; inset: 0; overflow: hidden; border-radius: 14px; }
-.person, .waiting { position: absolute; left: 0; bottom: 4px; width: 56px; height: 56px; margin-left: -28px; will-change: transform; }
-.person, .waiting .sprite { background: url("loading/people.webp") 0 0 / 224px 504px no-repeat; }
-.waiting .sprite { position: absolute; inset: 0; transition: transform 0.35s ease, opacity 0.35s ease; }
-.waiting .disc { position: absolute; left: 50%; bottom: 1px; width: 36px; height: 14px; margin-left: -18px; border-radius: 50%; background: rgba(140, 203, 176, 0.85); transition: opacity 0.35s ease; }
-.waiting.taken .sprite { transform: translateY(-12px) scale(1.12); opacity: 0; }
-.waiting.taken .disc { opacity: 0; }
-.spark { position: absolute; bottom: 26px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #e8bb67; pointer-events: none; animation: spark 0.6s ease-out forwards; }
+.person { position: absolute; left: 0; bottom: 4px; width: 56px; height: 56px; margin-left: -28px; will-change: transform; }
+.person { background: url("loading/people.webp") 0 0 / 224px 504px no-repeat; }
 #procession { position: absolute; inset: 0; overflow: visible; }
 #procession .person { margin-left: 0; left: 0; top: 0; bottom: auto; transform-origin: 50% 100%; }
 #status { min-height: 1.6em; margin: 0; font-size: clamp(16px, 2.4vh, 22px); font-weight: 600; letter-spacing: 0.02em; color: #123b43; text-shadow: 0 1px 0 rgba(247, 239, 217, 0.8); }
@@ -70,11 +65,9 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #loader.failed #scene, #loader.failed #status { display: none; }
 #loader.failed #notice { display: block; }
 @keyframes breathe { 0%, 100% { opacity: 0.75; transform: translate(-50%, -52%) scale(0.96); } 50% { opacity: 1; transform: translate(-50%, -52%) scale(1.04); } }
-@keyframes spark { from { opacity: 1; transform: translate(0, 0); } to { opacity: 0; transform: translate(var(--dx), -26px); } }
 @media (prefers-reduced-motion: reduce) {
   #glow { animation: none; }
-  .spark { display: none; }
-  #loader, .waiting { transition-duration: 0.01s; }
+  #loader { transition-duration: 0.01s; }
 }
 @media (min-aspect-ratio: 4/3) { #scene { height: 180px; } }
 </style>
@@ -101,7 +94,7 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 </div>
 <script src="index.js"></script>
 <script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-44f5e115e3feaec0.pck","experimentalVK":false,"fileSizes":{"game-44f5e115e3feaec0.pck":6930000,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-fc5d1a1a8f69804b.pck","experimentalVK":false,"fileSizes":{"game-fc5d1a1a8f69804b.pck":6978892,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -145,9 +138,9 @@ const engine = new Engine(GODOT_CONFIG);
   const notice = document.getElementById('notice');
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const CELL = 56;
-  // Six people wait along the path, chosen for varied looks from the rendered sheet.
-  const WAITING_ROWS = [1, 2, 3, 5, 6, 7];
-  const SPACING = 30;
+  // The row following the fisher, chosen for varied looks from the rendered sheet.
+  const LINE_ROWS = [1, 2, 3, 5, 6];
+  const SPACING = 28;
 
   // On large screens the whole scene grows (the sprites are drawn at twice their size),
   // but never wider than the window, so tall tablets keep the gate in view.
@@ -176,32 +169,14 @@ const engine = new Engine(GODOT_CONFIG);
     walkers.appendChild(el);
     return el;
   }
-  function waitingPerson(row) {
-    // Someone waiting on a light disc, like a pickup on the board.
-    const el = document.createElement('div');
-    el.className = 'waiting';
-    const disc = document.createElement('div');
-    disc.className = 'disc';
-    const sprite = document.createElement('div');
-    sprite.className = 'sprite';
-    sprite.style.backgroundPosition = (-CELL) + 'px ' + (-row * CELL) + 'px';
-    el.appendChild(disc);
-    el.appendChild(sprite);
-    walkers.appendChild(el);
-    return el;
-  }
   function frame(el, row, index) {
     el.style.backgroundPosition = (-index * CELL) + 'px ' + (-row * CELL) + 'px';
   }
 
-  // The leader walks the path; people wait along it and join the line as he passes.
+  // The fisher leads a row of people along the path to Jesus (Simon, 20 Oct).
   const leader = { el: person(0), row: 0 };
   leader.el.style.zIndex = 3;
-  const waiting = [];
-  WAITING_ROWS.forEach((row, i) => {
-    waiting.push({ row: row, at: 0.13 + i * 0.145, el: waitingPerson(row), joined: false });
-  });
-  const line = [];
+  const line = LINE_ROWS.map((row) => ({ el: person(row), row: row }));
   let shown = 0;
   let target = 0;
   let downloaded = false;
@@ -214,7 +189,7 @@ const engine = new Engine(GODOT_CONFIG);
   function pathWidth() { return walkers.clientWidth; }
   function leaderX(p) {
     const width = pathWidth();
-    const start = 26;
+    const start = 26 + LINE_ROWS.length * SPACING; // room for the row behind him
     const end = width - 92; // stop in front of Jesus
     return start + (end - start) * p;
   }
@@ -226,17 +201,6 @@ const engine = new Engine(GODOT_CONFIG);
       span.className = 'pct';
       span.textContent = pct + '%';
       statusLine.appendChild(span);
-    }
-  }
-  function sparkle(x) {
-    if (calm) return;
-    for (let i = 0; i < 5; i++) {
-      const s = document.createElement('div');
-      s.className = 'spark';
-      s.style.left = x + 'px';
-      s.style.setProperty('--dx', ((i - 2) * 7) + 'px');
-      walkers.appendChild(s);
-      setTimeout(() => s.remove(), 700);
     }
   }
 
@@ -257,19 +221,6 @@ const engine = new Engine(GODOT_CONFIG);
     } else walkFrame = 0;
     leader.el.style.transform = 'translateX(' + x + 'px)';
     frame(leader.el, 0, walkFrame);
-    for (const w of waiting) {
-      if (!w.joined) {
-        w.el.style.transform = 'translateX(' + leaderX(w.at) + 'px)';
-        if (shown >= w.at) {
-          w.joined = true;
-          w.el.classList.add('taken');
-          sparkle(leaderX(w.at));
-          const follower = person(w.row);
-          line.push({ el: follower, row: w.row });
-          setTimeout(() => w.el.remove(), 350);
-        }
-      }
-    }
     line.forEach((f, k) => {
       f.el.style.transform = 'translateX(' + (x - (k + 1) * SPACING) + 'px)';
       frame(f.el, f.row, (walkFrame + k) % 4 * (moving && !calm ? 1 : 0));
