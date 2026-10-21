@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-<script>window.FOM_BUILD="21 Oct 11:33 0fd1ec";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
+<script>window.FOM_BUILD="21 Oct 13:58 fde67e";(function(){try{fetch("build.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){t=t.trim();if(t&&t!==window.FOM_BUILD){var u=new URL(location.href);if(u.searchParams.get("b")!==t){u.searchParams.set("b",t);location.replace(u.toString());}}}).catch(function(){});}catch(e){}})();</script>
 <meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
@@ -62,7 +62,10 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
 #notice strong { display: block; margin-bottom: 6px; color: #e8bb67; font-size: 19px; }
 #notice small { display: block; margin-top: 10px; color: #8ccbb0; }
 #notice button { display: block; margin: 14px auto 0; padding: 10px 26px; border: 0; border-radius: 999px; background: #e8bb67; color: #123b43; font: inherit; font-weight: 700; cursor: pointer; }
-#loader.failed #scene, #loader.failed #status { display: none; }
+/* Matthew 4:19 under the status line (Simon, 21 Oct). */
+#verse { max-width: min(86vw, 470px); margin: 0; text-align: center; color: #123b43; font-size: clamp(15px, 2.1vh, 19px); line-height: 1.45; text-shadow: 0 1px 0 rgba(247, 239, 217, 0.8); }
+#verse .ref { display: block; margin-top: 4px; color: #8f6a24; font-size: 0.82em; font-weight: 600; }
+#loader.failed #scene, #loader.failed #status, #loader.failed #verse { display: none; }
 #loader.failed #notice { display: block; }
 @keyframes breathe { 0%, 100% { opacity: 0.75; transform: translate(-50%, -52%) scale(0.96); } 50% { opacity: 1; transform: translate(-50%, -52%) scale(1.04); } }
 @media (prefers-reduced-motion: reduce) {
@@ -89,12 +92,13 @@ body { background: #123b43; color: #123b43; overflow: hidden; touch-action: none
     <div id="goal"><div id="glow"></div><div id="gate"></div><div id="procession"></div><div id="jesus"></div></div>
   </div>
   <p id="status"></p>
+<p id="verse"><span class="text"></span><span class="ref"></span></p>
   <div id="notice" role="alert"></div>
   </div>
 </div>
 <script src="index.js"></script>
 <script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-0fd1ec91399ca308.pck","experimentalVK":false,"fileSizes":{"game-0fd1ec91399ca308.pck":17556704,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","mainPack":"game-fde67ee0f9a2d59b.pck","experimentalVK":false,"fileSizes":{"game-fde67ee0f9a2d59b.pck":17581344,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -111,7 +115,9 @@ const engine = new Engine(GODOT_CONFIG);
       "errorDetail": "Missing:",
       "loadTitle": "The game could not load",
       "loadText": "Please check your connection and try again.",
-      "reload": "Try again"
+      "reload": "Try again",
+      "verse": "“Come, follow Me,” Jesus said, “and I will make you fishers of men.”",
+      "verseSource": "Matthew 4:19 · Majority Standard Bible"
     },
     "de": {
       "gathering": "Menschen sammeln",
@@ -122,7 +128,9 @@ const engine = new Engine(GODOT_CONFIG);
       "errorDetail": "Es fehlt:",
       "loadTitle": "Das Spiel ließ sich nicht laden",
       "loadText": "Bitte prüfe deine Verbindung und versuche es noch einmal.",
-      "reload": "Noch einmal"
+      "reload": "Noch einmal",
+      "verse": "„Folgt mir nach, und ich will euch zu Menschenfischern machen!“",
+      "verseSource": "Matthäus 4,19 (Schlachter 2000)"
     }
   };
   // i18n:end
@@ -135,6 +143,9 @@ const engine = new Engine(GODOT_CONFIG);
   const loader = document.getElementById('loader');
   const walkers = document.getElementById('walkers');
   const statusLine = document.getElementById('status');
+  const verse = document.getElementById('verse');
+  verse.querySelector('.text').textContent = STRINGS.verse;
+  verse.querySelector('.ref').textContent = STRINGS.verseSource;
   const notice = document.getElementById('notice');
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const CELL = 56;
